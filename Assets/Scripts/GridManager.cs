@@ -91,18 +91,25 @@ public class GridManager : MonoBehaviour {
         if (MoveTilesLeft()) {
           state = State.CheckingMatches;
         }
-      } else if (swipeDirection == "Right" && hasSwiped) {
+			swipeDirection = null;
+		} else if (swipeDirection == "Right" && hasSwiped) {
         if (MoveTilesRight()) {
           state = State.CheckingMatches;
         }
-      } else if (swipeDirection == "Up" && hasSwiped) {
+				swipeDirection = null;
+				
+			} else if (swipeDirection == "Up" && hasSwiped) {
         if (MoveTilesUp()) {
           state = State.CheckingMatches;
         }
+				swipeDirection = null;
+				
       } else if (swipeDirection == "Down" && hasSwiped) {
         if (MoveTilesDown()) {
           state = State.CheckingMatches;
         }
+				swipeDirection = null;
+				
       } else if (Input.GetButtonDown("Reset")) {
         Reset();
       } else if (Input.GetButtonDown("Quit")) {
@@ -453,7 +460,7 @@ public class GridManager : MonoBehaviour {
 
 
 
-				if (distance > .3f)
+				if (distance > 100f)
 				{
 					if (swipedSideways && deltaX > 0) //swiped left
 					{
