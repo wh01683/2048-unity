@@ -18,6 +18,14 @@ public class GridManager : MonoBehaviour {
   private static float halfTileWidth = 0.55f;
   private static float spaceBetweenTiles = 1.1f;
 
+	private static string swipeDirection;
+
+
+
+  private Touch initialTouch = new Touch();
+  private float distance = 0;
+  private bool hasSwiped = false;
+
   private int points;
   private List<GameObject> tiles;
   private GUIText scoreText;
@@ -71,24 +79,27 @@ public class GridManager : MonoBehaviour {
   }
 
   void Update() {
-    if (state == State.Loaded) {
+
+	SetSwipeDirection ();
+    
+	if (state == State.Loaded) {
       state = State.WaitingForInput;
       GenerateRandomTile();
       GenerateRandomTile();
     } else if (state == State.WaitingForInput) {
-      if (Input.GetButtonDown("Left")) {
+      if (swipeDirection == "Left" && hasSwiped) {
         if (MoveTilesLeft()) {
           state = State.CheckingMatches;
         }
-      } else if (Input.GetButtonDown("Right")) {
+      } else if (swipeDirection == "Right" && hasSwiped) {
         if (MoveTilesRight()) {
           state = State.CheckingMatches;
         }
-      } else if (Input.GetButtonDown("Up")) {
+      } else if (swipeDirection == "Up" && hasSwiped) {
         if (MoveTilesUp()) {
           state = State.CheckingMatches;
         }
-      } else if (Input.GetButtonDown("Down")) {
+      } else if (swipeDirection == "Down" && hasSwiped) {
         if (MoveTilesDown()) {
           state = State.CheckingMatches;
         }
@@ -424,5 +435,54 @@ public class GridManager : MonoBehaviour {
     TileAnimationHandler tileAnim = newTile.GetComponent<TileAnimationHandler>();
     tileAnim.AnimateUpgrade();
   }
-  #endregion
+
+
+	private void SetSwipeDirection(){
+		foreach(Touch t in Input.touches)
+		{
+			if (t.phase == TouchPhase.Began)
+			{
+				initialTouch = t;
+			}
+			else if (t.phase == TouchPhase.Moved && !hasSwiped)
+			{
+				float deltaX = initialTouch.position.x - t.position.x;
+				float deltaY = initialTouch.position.y - t.position.y;
+				distance = Mathf.Sqrt((deltaX * deltaX) + (deltaY * deltaY));
+				bool swipedSideways = Mathf.Abs(deltaX) > Mathf.Abs(deltaY);
+
+
+
+				if (distance > .3f)
+				{
+					if (swipedSideways && deltaX > 0) //swiped left
+					{
+						swipeDirection = "Left";
+					}
+					else if (swipedSideways && deltaX <= 0) //swiped right
+					{
+						swipeDirection = "Right";
+					}
+					else if (!swipedSideways && deltaY > 0) //swiped down
+					{
+						swipeDirection = "Down";
+					}
+					else if (!swipedSideways && deltaY <= 0)  //swiped up
+					{
+						swipeDirection = "Up";
+					}
+					
+					hasSwiped = true;
+				}
+				
+			}
+			else if (t.phase == TouchPhase.Ended)
+			{
+				initialTouch = new Touch();
+				hasSwiped = false;
+			}
+		}
+	}
 }
+
+  #endregion
